@@ -1,0 +1,11 @@
+Resources[
+    Version[1],
+    Java[
+        Directory["javaOutput"],
+        Directory["mathSmolyak/Java"]
+    ],
+    ExecutionBuildCommand["<<mathSmolyak`"],
+    Paclet[
+        FunctionPaclet[False]
+    ]
+]
