@@ -5,30 +5,29 @@
 BeginPackage["mathSmolyak`", {"JLink`","Combinatorica`"}]
 (* Exported symbols added here with SymbolName::usage *) 
 
-chebyshevExtrema::usage="chebyshevExtrema[kk_Integer,nn_Integer]:=Cos[Pi*kk/nn]/;And[kk>0,kk<=nn]"
-chebyshevPtGenerator::usage="chebyshevPtGenerator[numPts_Integer]"
-chebyshevPolyGenerator::usage="chebyshevPolyGenerator[numPts_Integer]"
 
-sparseGridEvalPolysAtPts::usage="sparseGridEvalPolysAtPts[numVars_Integer,approxLevel_Integer,ptGenerator_Function,polyGenerator_Function]"
-sparseGridPts::usage="sparseGridPts[numVars_Integer,approxLevel_Integer]"
+unidimNestedGridPoints::usage="unidimNestedGridPoints[ii_Integer,ptGenerator_Function]  implementation of section 2.2.1 nested sets of points"
 
-sparseGridPtsSubs::usage="sparseGridPtsSubs[numVars_Integer,approxLevel_Integer,ptGenerator_Function]"
+unidimDisjointSetsPts::usage="unidimDisjointSetsPts[ii_Integer,ptGenerator_Function] produces disjoint sets of grid points as in section 3.2.1"
 
-sparseGridPolys::usage="sparseGridPts[numVars_Integer,approxLevel_Integer]"
+unidimDisjointSetsPolys::usage="unidimDisjointSetsPolys[ii_Integer,ptGenerator_Function] produces disjoint sets of basisfunctions as in section 3.3.1"
+
+tensorProdDisjointPts::usage="tensorProdDisjointPts[numGridPts_?listOfIntegers,ptGenerator_Function] produces tensor products like those in table 3 section 3.2.3 for sparse grid"
+
+tensorProdDisjointPolys::usage="tensorProdDisjointPolys[numGridPts_?listOfIntegers,ptGenerator_Function] generates disjoint sets of basis functions as in section 3.3.3"
+
+chebyshevPolyGenerator::usage="chebyshevPolyGenerator[numPts_Integer] generates chebyshev polynomials of the first kind with xx as the variable"
+
+sparseGridPts::usage="sparseGridPts[numVars_Integer,approxLevel_Integer] generates sparse smolyak grid using disjoint sets to produce sets of points like equations 2, 3 and 4 in section 2.2.3"
+
+sparseGridPolys::usage="sparseGridPts[numVars_Integer,approxLevel_Integer]  generates disjoint polynomials as in section 3.3.3"
 
 
-unidimNestedGridPoints::usage="unidimNestedGridPoints[]"
+sparseGridEvalPolysAtPts::usage="sparseGridEvalPolysAtPts[numVars_Integer,approxLevel_Integer,ptGenerator_Function,polyGenerator_Function] computes the polynomials evaluation points and evaluates the polynomials at the evaluation points as in section 3.4.2"
 
-unidimDisjointSetsPts::usage="unidimDisjointSetsPts[ii_Integer,ptGenerator_Function]"
-
-unidimDisjointSetsPolys::usage="unidimDisjointSetsPolys[ii_Integer,ptGenerator_Function]"
-
-tensorProdPts::usage="tensorProdPts[numGridPts_?listOfIntegers,ptGenerator_Function]"
-
-tensorProdPolys::usage="tensorProdPolys[numGridPts_?listOfIntegers,ptGenerator_Function]"
 
 xx::usage="variable for polynomials"
-ii::usage="index for variable in  polynomials"
+
 
 Begin["`Private`"]
 (* Implementation of the package *)
@@ -77,14 +76,14 @@ polyGenerator[numSmolyakPts[ii-1]]]]/;ii>0
 unidimDisjointSetsPolys[ii_Integer]:=
 unidimDisjointSetsPolys[ii,chebyshevPolyGenerator]/;ii>0
 
-tensorProdPts[numGridPts_?listOfIntegersQ,ptGenerator_Function]:=
+tensorProdDisjointPts[numGridPts_?listOfIntegersQ,ptGenerator_Function]:=
 With[{thePoints=unidimDisjointSetsPts[#,ptGenerator]&/@numGridPts},
 Outer @@ {List,Sequence@@thePoints}]
 
-tensorProdPts[numGridPts_?listOfIntegersQ]:=
-tensorProdPts[numGridPts,chebyshevPtGenerator]
+tensorProdDisjointPts[numGridPts_?listOfIntegersQ]:=
+tensorProdDisjointPts[numGridPts,chebyshevPtGenerator]
 
-tensorProdPolys[numGridPolys_?listOfIntegersQ,polyGenerator_Function]:=
+tensorProdDisjointPolys[numGridPolys_?listOfIntegersQ,polyGenerator_Function]:=
 With[{uniqueVars=makeUniqueVars[Length[numGridPolys]]},
 With[{thePolys=MapIndexed[
 (unidimDisjointSetsPolys[#,polyGenerator]/.xx->uniqueVars[[#2[[1]]]])&,
@@ -95,8 +94,8 @@ Outer @@ {Times,Sequence@@thePolys}]]
 makeUniqueVars[numVars_Integer]:=
 Table[xx[ii],{ii,numVars}]
 
-tensorProdPolys[numGridPolys_?listOfIntegersQ]:=
-tensorProdPolys[numGridPolys,chebyshevPolyGenerator]
+tensorProdDisjointPolys[numGridPolys_?listOfIntegersQ]:=
+tensorProdDisjointPolys[numGridPolys,chebyshevPolyGenerator]
 
 
 
@@ -126,7 +125,7 @@ Function[xx,Max[xx-(approxLevels+1)]<=0]
 
 sparseGridPts[numVars_Integer,approxLevel_Integer,ptGenerator_Function]:=
 With[{RSO=rightSmolyakOuters[numVars,approxLevel]},
-Flatten[tensorProdPts[#,ptGenerator]& /@ RSO,numVars]]/;And[numVars>0,approxLevel>=0]
+Flatten[tensorProdDisjointPts[#,ptGenerator]& /@ RSO,numVars]]/;And[numVars>0,approxLevel>=0]
 
 sparseGridPts[numVars_Integer,approxLevel_Integer]:=
 sparseGridPts[numVars,approxLevel,chebyshevPtGenerator]
@@ -136,7 +135,7 @@ sparseGridPts[numVars,approxLevel,chebyshevPtGenerator]
 sparseGridPts[approxLevels_?listOfIntegersQ,ptGenerator_Function]:=
 With[{numVars=Length[approxLevels]},
 With[{RSO=rightSmolyakOuters[numVars,approxLevels]},
-Flatten[tensorProdPts[#,ptGenerator]& /@ RSO,numVars]]]/;
+Flatten[tensorProdDisjointPts[#,ptGenerator]& /@ RSO,numVars]]]/;
 And[Min[approxLevels]>=0]
 
 sparseGridPts[approxLevels_?listOfIntegersQ]:=
@@ -166,7 +165,7 @@ sparseGridPtsSubs[approxLevels,chebyshevPtGenerator]
 
 sparseGridPolys[numVars_Integer,approxLevel_Integer,polyGenerator_Function]:=
 With[{RSO=rightSmolyakOuters[numVars,approxLevel]},
-Flatten[tensorProdPolys[#,polyGenerator]& /@ RSO,numVars]]/;
+Flatten[tensorProdDisjointPolys[#,polyGenerator]& /@ RSO,numVars]]/;
 And[numVars>0,approxLevel>=0]
 
 sparseGridPolys[numVars_Integer,approxLevel_Integer]:=
@@ -179,7 +178,7 @@ sparseGridPolys[numVars,approxLevel,chebyshevPolyGenerator]
 sparseGridPolys[approxLevels_?listOfIntegersQ,polyGenerator_Function]:=
 With[{numVars=Length[approxLevels]},
 With[{RSO=rightSmolyakOuters[numVars,approxLevels]},
-Flatten[tensorProdPolys[#,polyGenerator]& /@ RSO,numVars]]]/;
+Flatten[tensorProdDisjointPolys[#,polyGenerator]& /@ RSO,numVars]]]/;
 And[Min[approxLevels]>=0]
 
 sparseGridPolys[approxLevels_?listOfIntegersQ]:=
@@ -192,10 +191,10 @@ sparseGridPolys[approxLevels,chebyshevPolyGenerator]
 sparseGridEvalPolysAtPts[numVars_Integer,approxLevel_Integer,
 ptGenerator_Function,polyGenerator_Function]:=
 With[{thePolys=sparseGridPolys[numVars,approxLevel,polyGenerator],
-6thePts=sparseGridPts[numVars,approxLevel,ptGenerator]},
+thePts=sparseGridPts[numVars,approxLevel,ptGenerator]},
 {thePts,thePolys,thePolys/.sparseGridPtsSubs[numVars,approxLevel,ptGenerator]}]
-sparseEvalPolysAtPts[numVars_Integer,approxLevel_Integer]:=
-sparseEvalPolysAtPts[numVars,approxLevel,
+sparseGridEvalPolysAtPts[numVars_Integer,approxLevel_Integer]:=
+sparseGridEvalPolysAtPts[numVars,approxLevel,
 chebyshevPtGenerator,chebyshevPolyGenerator]
 
 
@@ -204,10 +203,10 @@ chebyshevPtGenerator,chebyshevPolyGenerator]
 sparseGridEvalPolysAtPts[numVars_Integer,approxLevel_Integer,
 ptGenerator_Function,polyGenerator_Function]:=
 With[{thePolys=sparseGridPolys[numVars,approxLevel,polyGenerator],
-6thePts=sparseGridPts[numVars,approxLevel,ptGenerator]},
+thePts=sparseGridPts[numVars,approxLevel,ptGenerator]},
 {thePts,thePolys,thePolys/.sparseGridPtsSubs[numVars,approxLevel,ptGenerator]}]
-sparseEvalPolysAtPts[numVars_Integer,approxLevel_Integer]:=
-sparseEvalPolysAtPts[numVars,approxLevel,
+sparseGridEvalPolysAtPts[numVars_Integer,approxLevel_Integer]:=
+sparseGridEvalPolysAtPts[numVars,approxLevel,
 chebyshevPtGenerator,chebyshevPolyGenerator]
 
 
