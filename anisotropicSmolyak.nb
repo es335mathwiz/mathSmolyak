@@ -9,9 +9,11 @@ Cell[TextData[{
 Anisotropic Smolyak Grid Method"
 }], "Title"],
 
-Cell["by", "Author"],
+Cell["by", "Author",
+ TextAlignment->Center],
 
-Cell["Gary Anderson", "Author"],
+Cell["Gary Anderson", "Author",
+ TextAlignment->Center],
 
 Cell[BoxData[
  RowBox[{"Needs", "[", "\"\<mathSmolyak`\>\"", "]"}]], "Code"],
