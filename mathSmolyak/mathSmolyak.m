@@ -6,6 +6,10 @@ BeginPackage["mathSmolyak`", {"JLink`","Combinatorica`"}]
 (* Exported symbols added here with SymbolName::usage *) 
 
 
+numNestedUniPts::usage="numNestedUniPts[ii_Integer]";
+
+numDisjointUniPts::usage="numDisjointUniPts[ii_Integer]";
+
 unidimNestedGridPoints::usage="unidimNestedGridPoints[ii_Integer,ptGenerator_Function]  implementation of section 2.2.1 nested sets of points"
 
 unidimDisjointSetsPts::usage="unidimDisjointSetsPts[ii_Integer,ptGenerator_Function] produces disjoint sets of grid points as in section 3.2.1"
@@ -102,14 +106,23 @@ tensorProdDisjointPolys[numGridPolys,chebyshevPolyGenerator]
 listOfIntegersQ[theList_List]:=VectorQ[theList,IntegerQ]
 
 
-
+(*implements eqn 1 conditioon*)
 rightSmolyakOuters[numVars_Integer,approxLevel_Integer]:=
 With[{tooMany=
+compSansZeroes[numVars,approxLevel]},
+tooMany]/;And[approxLevel>=0]
+
+compSansZeroes[numVars_Integer,approxLevel_Integer]:=
 DeleteCases[
 Flatten[Table[
 Compositions[theSum,numVars],{theSum,numVars,numVars+approxLevel}],1],
-{___,0,___}]},
-tooMany]/;And[approxLevel>=0]
+{___,0,___}]
+
+newCompSansZeroes[numVars_Integer,approxLevel_Integer]:=
+Select[
+DeleteDuplicates[Flatten[Permutations/@Flatten[Table[
+Partitions[theSum],{theSum,numVars,numVars+approxLevel}],1],1]],
+Length[#]==numVars&]
 
 
 rightSmolyakOuters[numVars_Integer,approxLevels_?listOfIntegersQ]:=
@@ -224,6 +237,15 @@ sparseGridPtsSubs[approxLevels,ptGenerator]}]]
 sparseGridEvalPolysAtPts[approxLevels_?listOfIntegersQ]:=
 sparseGridEvalPolysAtPts[approxLevels,
 chebyshevPtGenerator,chebyshevPolyGenerator]
+
+numDisjointUniPts[ii_Integer]:=Switch[ii,
+1,1,
+2,2,
+_ ,2^(ii-2)]/;ii>0
+
+numNestedUniPts[ii_Integer]:=Switch[ii,
+1,1,
+_ ,2^(ii-1)+1]/;ii>0
 
 
 

@@ -1,0 +1,22 @@
+(*smolyak anisotropic*)
+
+PrependTo[$Path,"mathSmolyak"]
+Needs["mathSmolyak`"]
+(*
+(theTime=Timing[{thePts,thePly,theMat}=sparseGridEvalPolysAtPts[Append[Table[1,{theDim=6}],2]]][[1]]);{theDim,Dimensions[theMat],theTime}
+*)
+(*peaklx19
+{13,{27, 27}, 220.7}
+{14, {29, 29}, 891.997} 
+{14, {29, 29}, 891.997} with 2 appended ran out memory 
+*)
+(*
+
+With[{dim=12,aLevel=2},{Timing[mathSmolyak`Private`compSansZeroes[dim,aLevel]][[1]],Timing[mathSmolyak`Private`newCompSansZeroes[dim,aLevel]][[1]]}]
+
+With[{dim=3,aLevel=2},ParallelTry[{#,#[dim,aLevel]}&,{mathSmolyak`Private`compSansZeroes,mathSmolyak`Private`newCompSansZeroes}]]
+
+
+With[{dim=28,aLevel=15},ParallelTry[{#,With[{theRes=Timing[#[dim,aLevel]]},{theRes[[1]],Length[theRes[[2]]]}]}&,{mathSmolyak`Private`compSansZeroes,mathSmolyak`Private`newCompSansZeroes}]]
+
+*)
