@@ -1,7 +1,7 @@
 (*smolyak anisotropic*)
 
 PrependTo[$Path,"mathSmolyak"]
-Needs["mathSmolyak`"]
+Quiet[Needs["mathSmolyak`"]]
 (*
 (theTime=Timing[{thePts,thePly,theMat}=sparseGridEvalPolysAtPts[Append[Table[1,{theDim=6}],2]]][[1]]);{theDim,Dimensions[theMat],theTime}
 *)
@@ -19,4 +19,13 @@ With[{dim=3,aLevel=2},ParallelTry[{#,#[dim,aLevel]}&,{mathSmolyak`Private`compSa
 
 With[{dim=28,aLevel=15},ParallelTry[{#,With[{theRes=Timing[#[dim,aLevel]]},{theRes[[1]],Length[theRes[[2]]]}]}&,{mathSmolyak`Private`compSansZeroes,mathSmolyak`Private`newCompSansZeroes}]]
 
+*)
+(*
+
+/msu/home/m1gsa00/profile_data/.eclipse/2129799954/configuration/org.eclipse.osgi/bundles/13/1/.cp/MathematicaSourceVersioned/Version6/MUnit/MUnit.m
+
+
+runTests[] := Map[TestRun, FileNames["Tests/*.mt"]]
+
+runTests[]
 *)

@@ -22,6 +22,9 @@ tensorProdDisjointPolys::usage="tensorProdDisjointPolys[numGridPts_?listOfIntege
 
 chebyshevPolyGenerator::usage="chebyshevPolyGenerator[numPts_Integer] generates chebyshev polynomials of the first kind with xx as the variable"
 
+chebyshevPtGenerator::usage="chebyshevPtGenerator"
+
+
 sparseGridPts::usage="sparseGridPts[numVars_Integer,approxLevel_Integer] generates sparse smolyak grid using disjoint sets to produce sets of points like equations 2, 3 and 4 in section 2.2.3"
 
 sparseGridPolys::usage="sparseGridPts[numVars_Integer,approxLevel_Integer]  generates disjoint polynomials as in section 3.3.3"
@@ -252,4 +255,3 @@ _ ,2^(ii-1)+1]/;ii>0
 End[]
 
 EndPackage[]
-
