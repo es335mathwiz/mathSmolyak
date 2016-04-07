@@ -4,8 +4,15 @@
 
 BeginPackage["mathSmolyak`", {"JLink`","Combinatorica`"}]
 (* Exported symbols added here with SymbolName::usage *) 
+xForm::usage="xform[xx,xlow,xhigh]"
+
+sparseGridPtsSubs::usage="sparseGridPtsSubs[numVars_Integer,approxLevel_Integer,ptGenerator_Function]"
 
 
+numberOrSymbolQ::usage="numberOrSymbolQ[xx_]"
+
+
+listOfIntegersQ::usage="listOfIntegers";
 numNestedUniPts::usage="numNestedUniPts[ii_Integer]";
 
 numDisjointUniPts::usage="numDisjointUniPts[ii_Integer]";
@@ -187,9 +194,10 @@ And[numVars>0,approxLevel>=0]
 sparseGridPolys[numVars_Integer,approxLevel_Integer]:=
 sparseGridPolys[numVars,approxLevel,chebyshevPolyGenerator]
 
+numberOrSymbolQ[xx_]:=Or[NumberQ[xx],Head[xx]===Symbol]
 
-
-
+xForm[xx_?numberOrSymbolQ, xBot_?numberOrSymbolQ, xTop_?numberOrSymbolQ] := 
+ 2*(xx - xBot)/(xTop - xBot) - 1
 
 sparseGridPolys[approxLevels_?listOfIntegersQ,polyGenerator_Function]:=
 With[{numVars=Length[approxLevels]},
@@ -231,11 +239,10 @@ chebyshevPtGenerator,chebyshevPolyGenerator]
 
 sparseGridEvalPolysAtPts[approxLevels_?listOfIntegersQ,
 ptGenerator_Function,polyGenerator_Function]:=
-With[{numVars=Length[approxLevels]},
 With[{thePolys=sparseGridPolys[approxLevels,polyGenerator],
 thePts=sparseGridPts[approxLevels,ptGenerator]},
 {thePts,thePolys,thePolys/.
-sparseGridPtsSubs[approxLevels,ptGenerator]}]]
+sparseGridPtsSubs[approxLevels,ptGenerator]}]
 
 sparseGridEvalPolysAtPts[approxLevels_?listOfIntegersQ]:=
 sparseGridEvalPolysAtPts[approxLevels,
@@ -255,3 +262,6 @@ _ ,2^(ii-1)+1]/;ii>0
 End[]
 
 EndPackage[]
+
+
+
