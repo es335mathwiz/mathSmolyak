@@ -231,11 +231,10 @@ chebyshevPtGenerator,chebyshevPolyGenerator]
 
 sparseGridEvalPolysAtPts[approxLevels_?listOfIntegersQ,
 ptGenerator_Function,polyGenerator_Function]:=
-With[{numVars=Length[approxLevels]},
 With[{thePolys=sparseGridPolys[approxLevels,polyGenerator],
 thePts=sparseGridPts[approxLevels,ptGenerator]},
 {thePts,thePolys,thePolys/.
-sparseGridPtsSubs[approxLevels,ptGenerator]}]]
+sparseGridPtsSubs[approxLevels,ptGenerator]}]
 
 sparseGridEvalPolysAtPts[approxLevels_?listOfIntegersQ]:=
 sparseGridEvalPolysAtPts[approxLevels,
