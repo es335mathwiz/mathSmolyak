@@ -2,10 +2,14 @@
 
 (* Created by the Wolfram Workbench Oct 31, 2013 *)
 
-BeginPackage["mathSmolyak`", {"JLink`","Combinatorica`"}]
+BeginPackage["mathSmolyak`", {"ProtectedSymbols`","JLink`"(*,"Combinatorica`"*)}]
 (* Exported symbols added here with SymbolName::usage *) 
-xForm::usage="xform[xx,xlow,xhigh]"
+Compositions::usage="from old deprecated Combinatorica package";
+KSubsets::usage="from old deprecated Combinatorica package";
 
+xForm::usage="xform[xx,xlow,xhigh]"
+xFormFromChebInterval::usage="from cheb interval"
+xFormToChebInterval::usage="to cheb interval"
 sparseGridPtsSubs::usage="sparseGridPtsSubs[numVars_Integer,approxLevel_Integer,ptGenerator_Function]"
 
 
@@ -40,7 +44,7 @@ sparseGridPolys::usage="sparseGridPts[numVars_Integer,approxLevel_Integer]  gene
 sparseGridEvalPolysAtPts::usage="sparseGridEvalPolysAtPts[numVars_Integer,approxLevel_Integer,ptGenerator_Function,polyGenerator_Function] computes the polynomials evaluation points and evaluates the polynomials at the evaluation points as in section 3.4.2"
 
 
-xx::usage="variable for polynomials"
+
 
 
 Begin["`Private`"]
@@ -199,6 +203,13 @@ numberOrSymbolQ[xx_]:=Or[NumberQ[xx],Head[xx]===Symbol]
 xForm[xx_?numberOrSymbolQ, xBot_?numberOrSymbolQ, xTop_?numberOrSymbolQ] := 
  2*(xx - xBot)/(xTop - xBot) - 1
 
+xFormToChebInterval[xx_, xBot_?numberOrSymbolQ, xTop_?numberOrSymbolQ] := 
+ 2*(xx - xBot)/(xTop - xBot) - 1
+
+xFormFromChebInterval[xx_, xBot_?numberOrSymbolQ, xTop_?numberOrSymbolQ] := ((xx+1)/2)*(xTop-xBot)+xBot
+
+
+
 sparseGridPolys[approxLevels_?listOfIntegersQ,polyGenerator_Function]:=
 With[{numVars=Length[approxLevels]},
 With[{RSO=rightSmolyakOuters[numVars,approxLevels]},
@@ -258,8 +269,42 @@ numNestedUniPts[ii_Integer]:=Switch[ii,
 _ ,2^(ii-1)+1]/;ii>0
 
 
+(*lifted from old Combinatorica`  since full package doesn't play well with Parallel distribute*)
+
+
+KS = Compile[{{n, _Integer}, {k, _Integer}}, 
+             Module[{h, ss = Range[k], x},  
+                    Table[(h = Length[ss]; x = n;
+                           While[x === ss[[h]], h--; x--];
+                           ss = Join[Take[ss, h - 1], 
+                                     Range[ss[[h]]+1, ss[[h]]+Length[ss]-h+1] 
+                                ]), 
+                          {Binomial[n, k]-1}
+                    ] 
+             ]
+     ]
+KSubsets[l_List,0] := { {} }
+KSubsets[l_List,1] := Partition[l,1]
+KSubsets[l_List,2] := Flatten[Table[{l[[i]], l[[j]]}, 
+                                    {i, Length[l]-1}, 
+                                    {j, i+1, Length[l]}
+                              ], 
+                              1
+                      ]
+KSubsets[l_List,k_Integer?Positive] := {l} /; (k == Length[l])
+KSubsets[l_List,k_Integer?Positive] := {}  /; (k > Length[l])
+KSubsets[s_List, k_Integer] := Prepend[Map[s[[#]] &, KS[Length[s], k]], s[[Range[k] ]] ]
+
+Compositions[n_Integer,k_Integer] :=
+	Map[
+		(Map[(#[[2]]-#[[1]]-1)&, Partition[Join[{0},#,{n+k}],2,1] ])&,
+		KSubsets[Range[n+k-1],k-1]
+	]
+
+
 
 End[]
+
 
 EndPackage[]
 
